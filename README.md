@@ -48,6 +48,8 @@ Until I write a shell script, need to run binaries the old-fashioned way:
 I referred to the following online resources while coding:
 
  * [Building Command Line Applications with Clojure](http://www.beaconhill.com/blog/?p=283)
+ * [jeremyheiler/xenopath](https://github.com/jeremyheiler/xenopath)<blockquote>Xenopath is an XPath and DOM library for Clojure.<br/><br/>The primary goal of this project is to provide a straightforward Clojure interface to the JDK's built-in XPath and DOM packages. The advantage is that it allows you to operate on sequences and maps instead of DOM collection objects. The disadvantage is that you're still working with a mutable DOM, so tread carefully.</blockquote><blockquote cite="http://clojure-log.n01se.net/date/2013-03-15.html#14:59"><strong>jeremyheiler:</strong> I just released an XPath library https://github.com/jeremyheiler/xenopath. I wasn't a fan of <a href="https://github.com/kyleburton/clj-xpath">clj-xpath</a>, so that was born.</blockquote>
+ * [StackOverflow > Getting the value of an element in XML in Clojure? > Using Christophe Grand's great Enlive library](http://stackoverflow.com/a/6329574/1695506)
 
 ## License
 
