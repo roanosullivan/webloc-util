@@ -13,18 +13,29 @@ Once I write a wrapper shell script ...
 
 If running from source, use "lein run [args]":
 
-    $ lein run
+    $ lein run $format $file
+
+ * format = { html | md }
+ * file = absolute or relative path to .webloc file
 
 Until I write a shell script, need to run binaries the old-fashioned way:
 
     $ java -jar webloc-util-0.1.0-standalone.jar $format $file
 
- * format = { html | md }
-
 ## Examples
 
     $ ls
     shortcut_to_mushrooms.webloc
+
+    $ more shortcut_to_mushrooms.webloc
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+    <key>URL</key>
+    <string>http://google.com</string>
+    </dict>
+    </plist>
 
     $ java -jar webloc-util-0.1.0-standalone.jar html shortcut_to_mushrooms.webloc
     <a href="http://google.com">shortcut_to_mushrooms</a>
@@ -40,6 +51,6 @@ I referred to the following online resources while coding:
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2013 Roan O'Sullivan
 
 Distributed under the Eclipse Public License, the same as Clojure.
