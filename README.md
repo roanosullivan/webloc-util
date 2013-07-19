@@ -55,4 +55,4 @@ I referred to the following online resources while coding:
 
 Copyright © 2013 Roan O'Sullivan
 
-Distributed under the Eclipse Public License, the same as Clojure.
+Distributed under the Apache License v2.0.
