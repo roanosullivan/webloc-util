@@ -84,6 +84,33 @@
      "" pairs)))
 
 ;; ------------------------------------
+;; IO
+
+(defn list-files
+  [dirpath])
+
+(defn to-link-names
+  [files])
+
+(defn conj-url-from-webloc
+  "Adds URL from webloc file to urls list "
+  [urls fname]
+  (let [raw-xml (slurp fname)
+        url (select-url raw-xml)]
+    (conj urls url)))
+
+(defn to-urls
+  [webloc-files]
+  (loop [files webloc-files
+         result ()]
+    (let [fname (first files)]
+      ;(println fname)
+      (if-not fname
+        result
+        (recur (next files)
+               (conj-url-from-webloc result fname))))))
+
+;; ------------------------------------
 ;; ENTRY POINT
 
 (defn -main
