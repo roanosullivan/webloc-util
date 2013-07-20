@@ -2,8 +2,8 @@
   [:require
    [net.cgrand.enlive-html :as html]
    [clojure.java.io :as io]
-   [me.raynes.fs :as fs]]
-  (:gen-class))
+   [me.raynes.fs :as fs]])
+
 
 ;; ------------------------------------
 ;; GENERIC XML select functions
@@ -37,51 +37,6 @@
     ; if plist not a seq, assume it's a string and attempt to parse
     (do
       (recur (html/html-snippet plist)))))
-
-;; ------------------------------------
-;; TRANSFORM
-
-(defn render
-  "Maybe something like this exists in net.cgrand.enlive-html, but I could not find it."
-  [node-or-nodes]
-  (apply str (html/emit* node-or-nodes)))
-
-(defn to-html-anchor
-  [url link]
-  (let [template (html/html-snippet "<a href=\"HREF\">LINK</a>")]
-    (html/transform
-     template [:a]
-     (html/do->
-      (html/set-attr :href url)
-      (html/content link)))))
-
-(defn to-html
-  [urls links]
-  (let [template (html/html-snippet "<ul><li>ANCHOR</li></ul>")
-        pairs (map #(vector %1 %2) urls links)]
-    (html/transform
-     template [:li]
-     (html/clone-for
-      [pair pairs]
-      (let [url (get pair 0)
-            link (get pair 1)]
-        (html/content (to-html-anchor url link)))))))
-
-(defn to-markdown-link
-  [url link]
-  (let [template "[LINK](URL)"]
-    (-> template
-        (clojure.string/replace #"URL" url)
-        (clojure.string/replace #"LINK" link))))
-
-(defn to-markdown
-  [urls links]
-  (let [pairs (map #(vector %1 %2) urls links)]
-    (reduce
-     #(let [url (get %2 0)
-            link (get %2 1)]
-        (str %1 " * " (to-markdown-link url link) "\n"))
-     "" pairs)))
 
 ;; ------------------------------------
 ;; IO
@@ -127,29 +82,67 @@
             (conj l bname)))]
     (reduce add-bname-to-list () files)))
 
-
 ;; ------------------------------------
-;; ENTRY POINT
+;; TRANSFORM
 
-(defn dispatch
-  "Dispatches urls and links to handler function based on format"
-  [format urls links]
-  (cond
-     (= "html" format) (render (to-html urls links))
-     (= "markdown" format) (to-markdown urls links)
-     (= "raw" format) (clojure.string/join "\n" urls)
-     :else (clojure.string/join "\n" urls)))
+(defn to-html-anchor
+  [url link]
+  (let [template (html/html-snippet "<a href=\"HREF\">LINK</a>")]
+    (html/transform
+     template [:a]
+     (html/do->
+      (html/set-attr :href url)
+      (html/content link)))))
 
-(defn -main
-  "Read urls from .webloc files in specified dir, and prints URLs to standard out in various formats based on 'format' arg (arg0). Supported formats include: (1) 'raw' URLs (one per line), (2) an 'html' unordered list of anchors, or (3) 'markdown' bullet list of links."
-  [format dname & args]
-  (let [d (io/file dname)
-        webloc-files (list-webloc-files d)
-        urls (to-urls webloc-files)
-        links (to-basenames webloc-files)]
-    (println (str "Reading URLs from .webloc files in '" (.getName d) "'."))
-    (let [result (dispatch format urls links)]
-      (println result))))
+(defn to-html
+  [urls links]
+  (let [template (html/html-snippet "<ul><li>ANCHOR</li></ul>")
+        pairs (map #(vector %1 %2) urls links)]
+    (html/transform
+     template [:li]
+     (html/clone-for
+      [pair pairs]
+      (let [url (get pair 0)
+            link (get pair 1)]
+        (html/content (to-html-anchor url link)))))))
+
+(defn to-markdown-link
+  [url link]
+  (let [template "[LINK](URL)"]
+    (-> template
+        (clojure.string/replace #"URL" url)
+        (clojure.string/replace #"LINK" link))))
+
+(defn to-markdown
+  [urls links]
+  (let [pairs (map #(vector %1 %2) urls links)]
+    (reduce
+     #(let [url (get %2 0)
+            link (get %2 1)]
+        (str %1 " * " (to-markdown-link url link) "\n"))
+     "" pairs)))
+
+(defn render
+  "Maybe something like this exists in net.cgrand.enlive-html, but I could not find it."
+  [node-or-nodes]
+  (apply str (html/emit* node-or-nodes)))
+
+(defn transform-urls
+  ;; todo: cleanup this doc
+  "Transforms .webloc files from directory dname to specific format based on format flag. .... Dispatches list of urls and corresponding list of names to specific formatter based on format flag. By default transforms urls to string of urls, one per line. Other supported formats include 'html' and 'markdown'."
+  ([format dname]
+     (let [d (io/file dname)
+           webloc-files (list-webloc-files d)
+           urls (to-urls webloc-files)
+           links (to-basenames webloc-files)]
+       (println (str "Reading URLs from .webloc files in '" (.getCanonicalPath d) "'."))
+       (transform-urls format urls links)))
+  ([format urls names]
+     (cond
+      (= "html" format) (render (to-html urls names))
+      (= "markdown" format) (to-markdown urls names)
+      (= "raw" format) (clojure.string/join "\n" urls)
+      :else (clojure.string/join "\n" urls))))
 
 ;; ------------------------------------
 ;; TEST SUPPORT
