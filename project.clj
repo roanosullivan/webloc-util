@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [enlive "1.1.1"]
                  [me.raynes/fs "1.4.4"]]
-  :main webloc-util.core)
+  ;:main webloc-util.core
+  )

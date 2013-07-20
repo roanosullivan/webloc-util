@@ -86,20 +86,26 @@
 ;; ------------------------------------
 ;; IO
 
-(defn list-files
-  [dirpath])
-
-(defn to-link-names
-  [files])
-
-(defn conj-url-from-webloc
-  "Adds URL from webloc file to urls list "
-  [urls fname]
-  (let [raw-xml (slurp fname)
-        url (select-url raw-xml)]
-    (conj urls url)))
+;; Useful API references for "list-webloc-files"
+;;  - http://docs.oracle.com/javase/7/docs/api/java/io/File.html
+;;  - http://raynes.github.io/fs/fs.core.html
+(defn list-webloc-files
+  "Lists .webloc files in directory d. Does not check subfolders (i.e. does _not_ use file-seq)"
+  [d]
+  (loop [files (.listFiles d)
+         result ()]
+    (let [f (first files)]
+      ;(println f)
+      ;(println (if f (fs/extension f) nil))
+      (if-not f
+        result
+        (recur (next files)
+               (if (= ".webloc" (fs/extension f))
+                 (conj result f)
+                 result))))))
 
 (defn to-urls
+  "Produces list of URLs from list of .webloc files."
   [webloc-files]
   (loop [files webloc-files
          result ()]
@@ -107,22 +113,43 @@
       ;(println fname)
       (if-not fname
         result
-        (recur (next files)
-               (conj-url-from-webloc result fname))))))
+        (let [raw-xml (slurp fname)
+              url (select-url raw-xml)]
+          (recur (next files)
+                 (conj result url)))))))
+
+(defn to-basenames
+  "Reduces list of files into list of basenames."
+  [files]
+  (let [add-bname-to-list
+        (fn [l f]
+          (let [bname (fs/base-name f true)]
+            (conj l bname)))]
+    (reduce add-bname-to-list () files)))
+
 
 ;; ------------------------------------
 ;; ENTRY POINT
 
+(defn dispatch
+  "Dispatches urls and links to handler function based on format"
+  [format urls links]
+  (cond
+     (= "html" format) (render (to-html urls links))
+     (= "markdown" format) (to-markdown urls links)
+     (= "raw" format) (clojure.string/join "\n" urls)
+     :else (clojure.string/join "\n" urls)))
+
 (defn -main
-  "Read plist from file and output html equivalent."
-  [op path & args]
-  (let [raw-xml (slurp path)
-        fname (.getName (io/file path))
-        bname (fs/base-name fname true)
-        url (select-url raw-xml)]
-    (if (= "html" op)
-      (to-html url bname)
-      (to-markdown url bname))))
+  "Read urls from .webloc files in specified dir, and prints URLs to standard out in various formats based on 'format' arg (arg0). Supported formats include: (1) 'raw' URLs (one per line), (2) an 'html' unordered list of anchors, or (3) 'markdown' bullet list of links."
+  [format dname & args]
+  (let [d (io/file dname)
+        webloc-files (list-webloc-files d)
+        urls (to-urls webloc-files)
+        links (to-basenames webloc-files)]
+    (println (str "Reading URLs from .webloc files in '" (.getName d) "'."))
+    (let [result (dispatch format urls links)]
+      (println result))))
 
 ;; ------------------------------------
 ;; TEST SUPPORT
@@ -153,6 +180,10 @@
 
 (def sample-links '("GOOG" "YAHOO"))
 
+(def sample-webloc-files '("/Users/roanosullivan/Working/git/gitlab.729x.com/devops/my-me/docs/inspiration/Paulo Bridi.webloc" "/Users/roanosullivan/Working/git/gitlab.729x.com/devops/my-me/docs/inspiration/Kevin Davis.webloc"))
+
+(def sample-dir (io/file "."))
+
 (defn test1 [] (html/select (html/html-snippet sample-plist) [[:dict (html/has [:key]) (html/has [(html/pred #(= (html/text %) "LRU"))])]]))
 
 (defn test2 [] (select-text (test1) :string))
@@ -160,3 +191,7 @@
 (defn test3 [] (println (render (to-html sample-urls sample-links))))
 
 (defn test4 [] (println (to-markdown sample-urls sample-links)))
+
+(defn test5 [] (to-urls sample-webloc-files))
+
+(defn test6 [] (list-webloc-files sample-dir))
