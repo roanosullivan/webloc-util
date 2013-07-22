@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Pre:
+# 1. Copy wu.sample to wu and overide M2_HOME and VERSION (if necessary)
+# 2. Use install-wu.sh script to: (a) build uberjar bin; (b) install bin in local maven repo; and (c) copy shell script to ~/bin
+#    $ ./scripts/install-wu.sh
+# 3. Put ~/bin on your PATH (if not already there)
+#    $ PATH=$PATH:~/bin/
+
+# Usage:
+#    $ wu "markdown" ~/Desktop
+
+# EDIT ME!
+M2_HOME=~/.m2
+
+# EDIT ME!
+VERSION=0.1.0-SNAPSHOT
+
+java -jar $M2_HOME/repository/webloc-util/webloc-util/$VERSION/webloc-util-$VERSION-standalone.jar $1 $2

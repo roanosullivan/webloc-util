@@ -13,3 +13,4 @@ pom.xml
 *.orig
 *.sublime*
 *.webloc
+/scripts/wu
