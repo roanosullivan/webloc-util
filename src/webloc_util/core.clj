@@ -2,7 +2,9 @@
   [:require
    [net.cgrand.enlive-html :as html]
    [clojure.java.io :as io]
-   [me.raynes.fs :as fs]])
+   [me.raynes.fs :as fs]]
+  [:import
+   [org.jsoup Jsoup]])
 
 
 ;; ------------------------------------
@@ -106,6 +108,10 @@
             link (get pair 1)]
         (html/content (to-html-anchor url link)))))))
 
+(defn pretty
+  [h]
+  (Jsoup/parse h))
+
 (defn to-markdown-link
   [url link]
   (let [template "[LINK](URL)"]
@@ -139,7 +145,7 @@
        (transform-urls format urls links)))
   ([format urls names]
      (cond
-      (= "html" format) (render (to-html urls names))
+      (= "html" format) (pretty (render (to-html urls names)))
       (= "markdown" format) (to-markdown urls names)
       (= "raw" format) (clojure.string/join "\n" urls)
       :else (clojure.string/join "\n" urls))))
