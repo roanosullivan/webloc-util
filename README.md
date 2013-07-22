@@ -4,23 +4,24 @@ CLI for working with .webloc files on Mac OS X. Currently just converts .webloc 
 
 ## Installation
 
-Once I write a wrapper shell script ...
-
-    $ lein install
-    $ cp scripts/webloc-util.sh ~/bin
+ 1. Copy wu.sample to wu and overide M2_HOME and VERSION
+ 2. Use install-wu.sh script to: (a) build uberjar bin; (b) install bin in local maven repo; and (c) copy shell script to ~/bin 
+    $ ./scripts/install-wu.sh
+ 3. Put ~/bin on your PATH (if not already there)     
+    $ PATH=$PATH:~/bin/
 
 ## Usage
 
-If running from source, use "lein run [args]":
+From Installed Binary:
+ 
+    $ wu "markdown" ~/Desktop
+
+From Source:
 
     $ lein run $format $file
 
  * format = { html | md }
  * file = absolute or relative path to .webloc file
-
-Until I write a shell script, need to run binaries the old-fashioned way:
-
-    $ java -jar webloc-util-0.1.0-standalone.jar $format $file
 
 ## Examples
 
@@ -37,11 +38,18 @@ Until I write a shell script, need to run binaries the old-fashioned way:
     </dict>
     </plist>
 
-    $ java -jar webloc-util-0.1.0-standalone.jar html shortcut_to_mushrooms.webloc
-    <a href="http://google.com">shortcut_to_mushrooms</a>
+    $ wu "html" .    
+    <html>
+     <head></head>
+     <body>
+      <ul>
+       <li><a href="http://google.com">shortcut_to_mushrooms</a></li>
+      </ul>
+     </body>
+    </html>
 
-    $ java -jar webloc-util-0.1.0-standalone.jar md shortcut_to_mushrooms.webloc
-    [shortcut_to_mushrooms](http://google.com)
+    $ lein run "markdown" .
+     * [shortcut_to_mushrooms](http://google.com)
 
 ## Tech Refs
 
@@ -52,6 +60,9 @@ I referred to the following online resources while coding:
  * [StackOverflow > Getting the value of an element in XML in Clojure? > Using Christophe Grand's great Enlive library](http://stackoverflow.com/a/6329574/1695506)
  * [StackOverflow > Listing files in a directory in Clojure](http://stackoverflow.com/questions/8566531/listing-files-in-a-directory-in-clojure)
  * [StackOverflow > Compojure HTML Formatting](http://stackoverflow.com/questions/1918901/compojure-html-formatting)
+    * [HTML Cleaner](http://htmlcleaner.sourceforge.net/download.php)
+    * [Jsoup](http://jsoup.org/download)
+    * [TagSoup](http://ccil.org/~cowan/XML/tagsoup/)
  * [GNU Emacs Manual > 18.3.1 Commands for Saving Files](http://www.gnu.org/software/emacs/manual/html_node/emacs/Save-Commands.html)
  * [Maven OS X Application Bundle Plugin](http://mojo.codehaus.org/osxappbundle-maven-plugin/)
  * [Bundle Programming Guide > Application Bundles > Anatomy of an OS X Application Bundle](https://developer.apple.com/library/mac/#documentation/CoreFoundation/Conceptual/CFBundles/BundleTypes/BundleTypes.html#//apple_ref/doc/uid/10000123i-CH101-SW19)
